@@ -43,9 +43,20 @@ try {
         exit;
     }
 
-    // Obtener datos del POST
-    $data = $_POST; // Usar $_POST directamente ya que estamos enviando FormData
-    log_debug('Datos recibidos:', $data);
+    // Obtener datos del POST o del cuerpo JSON
+    $data = $_POST; // Usar $_POST por defecto
+    log_debug('Datos recibidos (POST):', $data);
+
+    // Si no hay datos en $_POST, intentar decodificar JSON del cuerpo
+    if (empty($data)) {
+        $rawInput = file_get_contents('php://input');
+        log_debug('Cuerpo RAW recibido:', $rawInput);
+        $jsonData = json_decode($rawInput, true);
+        if (is_array($jsonData)) {
+            $data = $jsonData;
+            log_debug('Datos decodificados desde JSON:', $data);
+        }
+    }
     
     // Verificar si hay datos vacíos
     if (empty($data)) {
