@@ -1,0 +1,305 @@
+[2025-06-10 07:07:11] === INICIO DE SOLICITUD ===
+[2025-06-10 07:07:11] Método: POST
+[2025-06-10 07:07:11] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => Admin123!
+    [csrf_token] => 6494dabe0869076e203256af8061c795a9bce15828e396cde7bb82247d156f6d
+)
+
+[2025-06-10 07:07:11] IP del cliente: ::1
+[2025-06-10 07:07:11] === INICIO DE SOLICITUD ===
+[2025-06-10 07:07:11] Método: POST
+[2025-06-10 07:07:11] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => Admin123!
+    [csrf_token] => 6494dabe0869076e203256af8061c795a9bce15828e396cde7bb82247d156f6d
+)
+
+[2025-06-10 07:07:11] IP del cliente: ::1
+[2025-06-10 07:07:20] === INICIO DE SOLICITUD ===
+[2025-06-10 07:07:20] Método: POST
+[2025-06-10 07:07:20] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => Admin123!
+    [csrf_token] => 6494dabe0869076e203256af8061c795a9bce15828e396cde7bb82247d156f6d
+)
+
+[2025-06-10 07:07:20] IP del cliente: ::1
+[2025-06-23 19:21:54] === INICIO DE SOLICITUD ===
+[2025-06-23 19:21:54] Método: POST
+[2025-06-23 19:21:54] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => admin
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:21:55] IP del cliente: ::1
+[2025-06-23 19:22:00] === INICIO DE SOLICITUD ===
+[2025-06-23 19:22:00] Método: POST
+[2025-06-23 19:22:00] Datos POST:
+Datos: Array
+(
+    [usuario] => adminertyr
+    [password] => admin
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:22:00] IP del cliente: ::1
+[2025-06-23 19:23:33] === INICIO DE SOLICITUD ===
+[2025-06-23 19:23:33] Método: POST
+[2025-06-23 19:23:33] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => Admin123!
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:23:33] IP del cliente: ::1
+[2025-06-23 19:23:34] === INICIO DE SOLICITUD ===
+[2025-06-23 19:23:34] Método: POST
+[2025-06-23 19:23:34] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => Admin123!
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:23:34] IP del cliente: ::1
+[2025-06-23 19:23:34] === INICIO DE SOLICITUD ===
+[2025-06-23 19:23:34] Método: POST
+[2025-06-23 19:23:34] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => Admin123!
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:23:34] IP del cliente: ::1
+[2025-06-23 19:23:55] === INICIO DE SOLICITUD ===
+[2025-06-23 19:23:55] Método: POST
+[2025-06-23 19:23:55] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => Admin123!
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:23:55] IP del cliente: ::1
+[2025-06-23 19:23:56] === INICIO DE SOLICITUD ===
+[2025-06-23 19:23:56] Método: POST
+[2025-06-23 19:23:56] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => Admin123!
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:23:56] IP del cliente: ::1
+[2025-06-23 19:25:29] === INICIO DE SOLICITUD ===
+[2025-06-23 19:25:29] Método: POST
+[2025-06-23 19:25:29] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] =>  Error en la conexión. Por favor, intente nuevamente.
+    [csrf_token] => 6494dabe0869076e203256af8061c795a9bce15828e396cde7bb82247d156f6d
+)
+
+[2025-06-23 19:25:29] IP del cliente: ::1
+[2025-06-23 19:33:20] === INICIO DE SOLICITUD ===
+[2025-06-23 19:33:20] Método: POST
+[2025-06-23 19:33:20] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => Admin123!
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:33:20] IP del cliente: ::1
+[2025-06-23 19:33:20] Datos recibidos:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => Admin123!
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:33:20] Iniciando autenticación normal
+[2025-06-23 19:33:20] Llamando a authenticate_user con usuario: admin
+[2025-06-23 19:33:21] Resultado de authenticate_user:
+Datos: Array
+(
+    [status] => 2fa_required
+    [user_id] => 1
+    [test_code] => 123456
+)
+
+[2025-06-23 19:33:34] === INICIO DE SOLICITUD ===
+[2025-06-23 19:33:34] Método: POST
+[2025-06-23 19:33:34] Datos POST:
+Datos: Array
+(
+)
+
+[2025-06-23 19:33:34] IP del cliente: ::1
+[2025-06-23 19:33:34] Datos recibidos:
+Datos: Array
+(
+)
+
+[2025-06-23 19:33:34] Error: No se recibieron datos POST
+[2025-06-23 19:34:55] === INICIO DE SOLICITUD ===
+[2025-06-23 19:34:55] Método: POST
+[2025-06-23 19:34:55] Datos POST:
+Datos: Array
+(
+)
+
+[2025-06-23 19:34:55] IP del cliente: ::1
+[2025-06-23 19:34:55] Datos recibidos:
+Datos: Array
+(
+)
+
+[2025-06-23 19:34:55] Error: No se recibieron datos POST
+[2025-06-23 19:39:12] === INICIO DE SOLICITUD ===
+[2025-06-23 19:39:12] Método: POST
+[2025-06-23 19:39:12] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => ertert
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:39:12] IP del cliente: ::1
+[2025-06-23 19:39:12] Datos recibidos:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => ertert
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:39:12] Iniciando autenticación normal
+[2025-06-23 19:39:12] Llamando a authenticate_user con usuario: admin
+[2025-06-23 19:39:12] Resultado de authenticate_user:
+Datos: Array
+(
+    [status] => error
+    [message] => Usuario o contraseña incorrectos
+)
+
+[2025-06-23 19:39:16] === INICIO DE SOLICITUD ===
+[2025-06-23 19:39:16] Método: POST
+[2025-06-23 19:39:16] Datos POST:
+Datos: Array
+(
+    [usuario] => admin5
+    [password] => ertert
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:39:16] IP del cliente: ::1
+[2025-06-23 19:39:16] Datos recibidos:
+Datos: Array
+(
+    [usuario] => admin5
+    [password] => ertert
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:39:16] Iniciando autenticación normal
+[2025-06-23 19:39:16] Llamando a authenticate_user con usuario: admin5
+[2025-06-23 19:39:16] Resultado de authenticate_user:
+Datos: Array
+(
+    [status] => error
+    [message] => Usuario o contraseña incorrectos
+)
+
+[2025-06-23 19:39:26] === INICIO DE SOLICITUD ===
+[2025-06-23 19:39:26] Método: POST
+[2025-06-23 19:39:26] Datos POST:
+Datos: Array
+(
+    [usuario] => admin5
+    [password] => ertertgyh
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:39:26] IP del cliente: ::1
+[2025-06-23 19:39:26] Datos recibidos:
+Datos: Array
+(
+    [usuario] => admin5
+    [password] => ertertgyh
+    [csrf_token] => 5e063db4347e76f15437f086a174fcf967d2ca8a403c4be26ea5ff92bf857d4f
+)
+
+[2025-06-23 19:39:26] Iniciando autenticación normal
+[2025-06-23 19:39:26] Llamando a authenticate_user con usuario: admin5
+[2025-06-23 19:39:26] Resultado de authenticate_user:
+Datos: Array
+(
+    [status] => error
+    [message] => Usuario o contraseña incorrectos
+)
+
+[2025-06-23 19:50:43] === INICIO DE SOLICITUD ===
+[2025-06-23 19:50:43] Método: POST
+[2025-06-23 19:50:43] Datos POST:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => Admin123!
+    [csrf_token] => 3f8e5b57a9ca1a2a0ac4ee99b20c13138da2765016ef281ae53191e79be2e2bc
+)
+
+[2025-06-23 19:50:44] IP del cliente: ::1
+[2025-06-23 19:50:44] Datos recibidos:
+Datos: Array
+(
+    [usuario] => admin
+    [password] => Admin123!
+    [csrf_token] => 3f8e5b57a9ca1a2a0ac4ee99b20c13138da2765016ef281ae53191e79be2e2bc
+)
+
+[2025-06-23 19:50:44] Iniciando autenticación normal
+[2025-06-23 19:50:44] Llamando a authenticate_user con usuario: admin
+[2025-06-23 19:50:44] Resultado de authenticate_user:
+Datos: Array
+(
+    [status] => 2fa_required
+    [user_id] => 1
+    [test_code] => 123456
+)
+
+[2025-06-23 19:50:58] === INICIO DE SOLICITUD ===
+[2025-06-23 19:50:58] Método: POST
+[2025-06-23 19:50:58] Datos POST:
+Datos: Array
+(
+)
+
+[2025-06-23 19:50:58] IP del cliente: ::1
+[2025-06-23 19:50:58] Datos recibidos:
+Datos: Array
+(
+)
+
+[2025-06-23 19:50:58] Error: No se recibieron datos POST

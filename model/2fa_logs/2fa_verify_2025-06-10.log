@@ -1,0 +1,128 @@
+[2025-06-10 05:50:47] 
+=== INICIO verify_2fa_code ===
+[2025-06-10 05:50:47] Directorio de trabajo: D:\xamp10\htdocs\login-doble-factor\model
+[2025-06-10 05:50:47] Archivo de log: D:\xamp10\htdocs\login-doble-factor\model/2fa_logs/2fa_verify_2025-06-10.log
+[2025-06-10 05:50:47] Permisos del directorio: 0777
+[2025-06-10 05:50:47] Código proporcionado: '092982'
+[2025-06-10 05:50:47] Tipo de código: string
+[2025-06-10 05:50:47] Hash almacenado: $2y$10$xfF...
+[2025-06-10 05:50:47] Tiempo de expiración: '2025-06-10 05:55:46'
+[2025-06-10 05:50:47] Tiempo actual: 2025-06-10 05:50:47 (1749527447)
+[2025-06-10 05:50:47] Tiempo de expiración: 2025-06-10 05:55:46 (1749527746)
+[2025-06-10 05:50:47] Tiempo restante: 299 segundos (00:04:59)
+[2025-06-10 05:50:47] 
+[MÉTODO 1] Verificando comparación directa...
+[2025-06-10 05:50:47] ✗ La comparación directa falló
+[2025-06-10 05:50:47] 
+[MÉTODO 2] Verificando con password_verify...
+[2025-06-10 05:50:47] Resultado de password_verify: VÁLIDO
+[2025-06-10 05:50:47] ✓ VERIFICACIÓN EXITOSA: password_verify
+[2025-06-10 05:50:47] === FIN verify_2fa_code ===
+
+[2025-06-10 05:52:00] 
+=== INICIO verify_2fa_code ===
+[2025-06-10 05:52:00] Directorio de trabajo: D:\xamp10\htdocs\login-doble-factor\model
+[2025-06-10 05:52:00] Archivo de log: D:\xamp10\htdocs\login-doble-factor\model/2fa_logs/2fa_verify_2025-06-10.log
+[2025-06-10 05:52:00] Permisos del directorio: 0777
+[2025-06-10 05:52:00] Código proporcionado: '086246'
+[2025-06-10 05:52:00] Tipo de código: string
+[2025-06-10 05:52:00] Hash almacenado: $2y$10$lF8...
+[2025-06-10 05:52:00] Tiempo de expiración: '2025-06-10 05:57:00'
+[2025-06-10 05:52:00] Tiempo actual: 2025-06-10 05:52:00 (1749527520)
+[2025-06-10 05:52:00] Tiempo de expiración: 2025-06-10 05:57:00 (1749527820)
+[2025-06-10 05:52:00] Tiempo restante: 300 segundos (00:05:00)
+[2025-06-10 05:52:00] 
+[MÉTODO 1] Verificando comparación directa...
+[2025-06-10 05:52:00] ✗ La comparación directa falló
+[2025-06-10 05:52:00] 
+[MÉTODO 2] Verificando con password_verify...
+[2025-06-10 05:52:00] Resultado de password_verify: VÁLIDO
+[2025-06-10 05:52:00] ✓ VERIFICACIÓN EXITOSA: password_verify
+[2025-06-10 05:52:00] === FIN verify_2fa_code ===
+
+[2025-06-10 05:53:07] 
+=== INICIO verify_2fa_code ===
+[2025-06-10 05:53:07] Directorio de trabajo: D:\xamp10\htdocs\login-doble-factor\model
+[2025-06-10 05:53:07] Archivo de log: D:\xamp10\htdocs\login-doble-factor\model/2fa_logs/2fa_verify_2025-06-10.log
+[2025-06-10 05:53:07] Permisos del directorio: 0777
+[2025-06-10 05:53:07] Código proporcionado: '546592'
+[2025-06-10 05:53:07] Tipo de código: string
+[2025-06-10 05:53:07] Hash almacenado: $2y$10$jDb...
+[2025-06-10 05:53:07] Tiempo de expiración: '2025-06-10 05:58:07'
+[2025-06-10 05:53:07] Tiempo actual: 2025-06-10 05:53:07 (1749527587)
+[2025-06-10 05:53:07] Tiempo de expiración: 2025-06-10 05:58:07 (1749527887)
+[2025-06-10 05:53:07] Tiempo restante: 300 segundos (00:05:00)
+[2025-06-10 05:53:07] 
+[MÉTODO 1] Verificando comparación directa...
+[2025-06-10 05:53:07] ✗ La comparación directa falló
+[2025-06-10 05:53:07] 
+[MÉTODO 2] Verificando con password_verify...
+[2025-06-10 05:53:07] Resultado de password_verify: VÁLIDO
+[2025-06-10 05:53:07] ✓ VERIFICACIÓN EXITOSA: password_verify
+[2025-06-10 05:53:07] === FIN verify_2fa_code ===
+
+[2025-06-10 06:43:47] 
+=== INICIO verify_2fa_code ===
+[2025-06-10 06:43:47] Directorio de trabajo: D:\xamp10\htdocs\login-doble-factor\model
+[2025-06-10 06:43:47] Archivo de log: D:\xamp10\htdocs\login-doble-factor\model/2fa_logs/2fa_verify_2025-06-10.log
+[2025-06-10 06:43:47] Permisos del directorio: 0777
+[2025-06-10 06:43:47] Código proporcionado: '123456'
+[2025-06-10 06:43:47] Tipo de código: string
+[2025-06-10 06:43:47] Hash almacenado: $2y$10$g7s...
+[2025-06-10 06:43:47] Tiempo de expiración: '2025-06-10 06:43:21'
+[2025-06-10 06:43:47] Tiempo actual: 2025-06-10 06:43:47 (1749530627)
+[2025-06-10 06:43:47] Tiempo de expiración: 2025-06-10 06:43:21 (1749530601)
+[2025-06-10 06:43:47] Error: El código 2FA ha expirado hace 26 segundos
+[2025-06-10 06:43:47] ❌ Error en verify_2fa_code: El código 2FA ha expirado
+[2025-06-10 06:43:47] === FIN verify_2fa_code ===
+
+[2025-06-10 06:49:06] 
+=== INICIO verify_2fa_code ===
+[2025-06-10 06:49:06] Directorio de trabajo: D:\xamp10\htdocs\login-doble-factor\model
+[2025-06-10 06:49:06] Archivo de log: D:\xamp10\htdocs\login-doble-factor\model/2fa_logs/2fa_verify_2025-06-10.log
+[2025-06-10 06:49:06] Permisos del directorio: 0777
+[2025-06-10 06:49:06] Código proporcionado: '123456'
+[2025-06-10 06:49:06] Tipo de código: string
+[2025-06-10 06:49:06] Hash almacenado: $2y$10$iBM...
+[2025-06-10 06:49:06] Tiempo de expiración: '2025-06-10 06:52:19'
+[2025-06-10 06:49:06] Tiempo actual: 2025-06-10 06:49:06 (1749530946)
+[2025-06-10 06:49:06] Tiempo de expiración: 2025-06-10 06:52:19 (1749531139)
+[2025-06-10 06:49:06] Tiempo restante: 193 segundos (00:03:13)
+[2025-06-10 06:49:06] 
+[MÉTODO 1] Verificando comparación directa...
+[2025-06-10 06:49:06] ✗ La comparación directa falló
+[2025-06-10 06:49:06] 
+[MÉTODO 2] Verificando con password_verify...
+[2025-06-10 06:49:06] Resultado de password_verify: INVÁLIDO
+[2025-06-10 06:49:06] 
+[MÉTODO 3] Analizando información del hash almacenado...
+[2025-06-10 06:49:06] Información del hash: Array
+(
+    [algo] => 2y
+    [algoName] => bcrypt
+    [options] => Array
+        (
+            [cost] => 10
+        )
+
+)
+
+[2025-06-10 06:49:06] 
+[MÉTODO 4] Hash identificado como BCRYPT, intentando verificación...
+[2025-06-10 06:49:06] Hash generado con crypt(): $2y$10$iBMTC7n3xy8gTXGuoDfRoew...
+[2025-06-10 06:49:06] 
+[MÉTODO 5] Verificando con hash_hmac...
+[2025-06-10 06:49:06] Hash HMAC generado: 0ec1cde89a2666d7455193072c8e36d4eba28ec09c91f8e1953cad51e28770a8
+[2025-06-10 06:49:06] 
+[MÉTODO 6] Verificando con MD5...
+[2025-06-10 06:49:06] Hash MD5 generado: e10adc3949ba59abbe56e057f20f883e
+[2025-06-10 06:49:06] 
+❌ TODOS LOS MÉTODOS DE VERIFICACIÓN HAN FALLADO
+[2025-06-10 06:49:06] 
+[DEBUG] Información adicional:
+[2025-06-10 06:49:06] Longitud del código: 6
+[2025-06-10 06:49:06] Longitud del hash: 60
+[2025-06-10 06:49:06] Primeros 10 caracteres del hash: $2y$10$iBM
+[2025-06-10 06:49:06] ¿Es un hash bcrypt? bcrypt
+[2025-06-10 06:49:06] === FIN verify_2fa_code ===
+

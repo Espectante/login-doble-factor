@@ -1,0 +1,977 @@
+<?php
+// Definir el entorno de la aplicación
+define('ENVIRONMENT', 'development'); // Cambiar a 'production' en producción
+
+// Configuración de seguridad de la sesión
+if (session_status() === PHP_SESSION_NONE) {
+    // Configuración de cookies seguras
+    $cookieParams = session_get_cookie_params();
+    session_set_cookie_params([
+        'lifetime' => 3600, // 1 hora
+        'path' => '/',
+        'domain' => $_SERVER['HTTP_HOST'],
+        'secure' => isset($_SERVER['HTTPS']),
+        'httponly' => true,
+        'samesite' => 'Strict'
+    ]);
+    
+    // Configuración adicional de seguridad
+    ini_set('session.use_only_cookies', 1);
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
+    ini_set('session.use_strict_mode', 1);
+    ini_set('session.cookie_samesite', 'Strict');
+    
+    // Iniciar la sesión
+    session_start();
+    
+    // Regenerar ID de sesión para prevenir fijación de sesión
+    if (!isset($_SESSION['last_regeneration'])) {
+        session_regenerate_id(true);
+        $_SESSION['last_regeneration'] = time();
+        $_SESSION['ip_address'] = $_SERVER['REMOTE_ADDR'];
+        $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+    } elseif (time() - $_SESSION['last_regeneration'] > 1800) { // 30 minutos
+        session_regenerate_id(true);
+        $_SESSION['last_regeneration'] = time();
+    }
+    
+    // Verificar si la sesión ha sido secuestrada
+    if (isset($_SESSION['ip_address']) && $_SESSION['ip_address'] !== $_SERVER['REMOTE_ADDR']) {
+        session_unset();
+        session_destroy();
+        die('Sesión inválida.');
+    }
+    
+    if (isset($_SESSION['user_agent']) && $_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']) {
+        session_unset();
+        session_destroy();
+        die('Sesión inválida.');
+    }
+}
+
+// Función para limpiar entradas
+function clean_input($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
+    return $data;
+}
+
+// Función para generar token CSRF
+function generate_csrf_token() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+// Función para verificar token CSRF
+function verify_csrf_token($token) {
+    if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
+        return false;
+    }
+    return true;
+}
+
+// Función para generar código de doble factor
+function generate_2fa_code() {
+    return str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+}
+
+// Función para verificar el código de doble factor
+function verify_2fa_code($user_code, $stored_code, $expiry_time) {
+    // Verificación directa (sin hashing)
+    return $stored_code === $user_code;
+}
+
+        // También escribir en el error_log de PHP
+        error_log(trim($message));
+    };
+    
+    try {
+        $writeLog("\n=== INICIO verify_2fa_code ===");
+        $writeLog("Directorio de trabajo: " . __DIR__);
+        $writeLog("Archivo de log: $log_file");
+        $writeLog("Permisos del directorio: " . substr(sprintf('%o', fileperms($log_dir)), -4));
+        $writeLog("Código proporcionado: " . var_export($user_code, true));
+        $writeLog("Tipo de código: " . gettype($user_code));
+        $writeLog("Hash almacenado: " . (empty($stored_code) ? 'VACÍO' : substr($stored_code, 0, 10) . '...'));
+        $writeLog("Tiempo de expiración: " . var_export($expiry_time, true));
+        
+        // Verificar si hay un código almacenado
+        if (empty($stored_code)) {
+            $writeLog("Error: No hay código 2FA almacenado");
+            throw new Exception("No hay código 2FA almacenado");
+        }
+        
+        // Verificar si el código de usuario es válido
+        if (empty($user_code) || !is_string($user_code)) {
+            $writeLog("Error: Código de usuario inválido o vacío");
+            throw new Exception("Código de usuario inválido o vacío");
+        }
+        
+        // Asegurarse de que el código sea una cadena de 6 dígitos
+        if (!preg_match('/^\d{6}$/', $user_code)) {
+            $writeLog("Error: El código debe ser una cadena de 6 dígitos");
+            throw new Exception("El código debe ser una cadena de 6 dígitos");
+        }
+        
+        // Verificar si el código ha expirado
+        $current_time = time();
+        
+        // Asegurarse de que $expiry_time sea un timestamp válido
+        if (empty($expiry_time)) {
+            $writeLog("Error: No se proporcionó tiempo de expiración");
+            throw new Exception("No se proporcionó tiempo de expiración");
+        }
+        
+        // Convertir a timestamp si es necesario
+        $expiry_timestamp = is_numeric($expiry_time) ? (int)$expiry_time : strtotime($expiry_time);
+        
+        // Verificar si la conversión fue exitosa
+        if ($expiry_timestamp === false) {
+            $writeLog("Error: No se pudo convertir el tiempo de expiración a timestamp");
+            throw new Exception("No se pudo convertir el tiempo de expiración a timestamp");
+        }
+        
+        $writeLog("Tiempo actual: " . date('Y-m-d H:i:s', $current_time) . " ($current_time)");
+        $writeLog("Tiempo de expiración: " . date('Y-m-d H:i:s', $expiry_timestamp) . " ($expiry_timestamp)");
+        
+        // Verificar expiración
+        if ($current_time > $expiry_timestamp) {
+            $time_diff = $current_time - $expiry_timestamp;
+            $writeLog("Error: El código 2FA ha expirado hace " . $time_diff . " segundos");
+            throw new Exception("El código 2FA ha expirado");
+        }
+        
+        $time_remaining = $expiry_timestamp - $current_time;
+        $writeLog("Tiempo restante: $time_remaining segundos (" . gmdate("H:i:s", $time_remaining) . ")");
+        
+        // Método 1: Verificar si el código coincide directamente (sin hash)
+        $writeLog("\n[MÉTODO 1] Verificando comparación directa...");
+        if ($stored_code === $user_code) {
+            $writeLog("✓ VERIFICACIÓN EXITOSA: Coincidencia directa");
+            return true;
+        }
+        $writeLog("✗ La comparación directa falló");
+        
+        // Método 2: Verificar con password_verify (para códigos hasheados con password_hash)
+        $writeLog("\n[MÉTODO 2] Verificando con password_verify...");
+        $verify_result = password_verify($user_code, $stored_code);
+        $writeLog("Resultado de password_verify: " . ($verify_result ? 'VÁLIDO' : 'INVÁLIDO'));
+        if ($verify_result) {
+            $writeLog("✓ VERIFICACIÓN EXITOSA: password_verify");
+            return true;
+        }
+        
+        // Método 3: Verificar información del hash almacenado
+        $writeLog("\n[MÉTODO 3] Analizando información del hash almacenado...");
+        $hash_info = @password_get_info($stored_code);
+        $writeLog("Información del hash: " . print_r($hash_info, true));
+        
+        // Método 4: Verificación específica para hashes bcrypt
+        if (isset($hash_info['algo']) && $hash_info['algo'] === PASSWORD_BCRYPT) {
+            $writeLog("\n[MÉTODO 4] Hash identificado como BCRYPT, intentando verificación...");
+            
+            // Verificar si el hash fue generado con password_hash
+            if (password_verify($user_code, $stored_code)) {
+                $writeLog("✓ VERIFICACIÓN EXITOSA: password_verify (segundo intento)");
+                return true;
+            }
+            
+            // Verificar si el hash fue generado con crypt()
+            $crypt_hash = crypt($user_code, $stored_code);
+            $writeLog("Hash generado con crypt(): " . substr($crypt_hash, 0, 30) . "...");
+            if (hash_equals($stored_code, $crypt_hash)) {
+                $writeLog("✓ VERIFICACIÓN EXITOSA: crypt()");
+                return true;
+            }
+        }
+        
+        // Método 5: Verificación con hash_hmac
+        if (function_exists('hash_hmac')) {
+            $writeLog("\n[MÉTODO 5] Verificando con hash_hmac...");
+            $hmac_hash = hash_hmac('sha256', $user_code, 'clave_secreta');
+            $writeLog("Hash HMAC generado: " . $hmac_hash);
+            if (hash_equals($stored_code, $hmac_hash)) {
+                $writeLog("✓ VERIFICACIÓN EXITOSA: hash_hmac");
+                return true;
+            }
+        }
+        
+        // Método 6: Verificación de hash MD5 (solo para compatibilidad con sistemas heredados)
+        $writeLog("\n[MÉTODO 6] Verificando con MD5...");
+        $md5_hash = md5($user_code);
+        $writeLog("Hash MD5 generado: " . $md5_hash);
+        if ($md5_hash === $stored_code) {
+            $writeLog("✓ VERIFICACIÓN EXITOSA: MD5 (¡ADVERTENCIA: MD5 no es seguro!)");
+            return true;
+        }
+        
+        // Si llegamos aquí, todos los métodos de verificación han fallado
+        $writeLog("\n❌ TODOS LOS MÉTODOS DE VERIFICACIÓN HAN FALLADO");
+        
+        // Depuración adicional: Verificar si el código está incluido en el hash
+        if (strpos($stored_code, $user_code) !== false) {
+            $writeLog("⚠️  ADVERTENCIA: El código parece estar incluido en el hash (posible error de configuración)");
+            $writeLog("   Código: $user_code");
+            $writeLog("   Hash: $stored_code");
+        }
+        
+        // Mostrar información adicional para depuración
+        $writeLog("\n[DEBUG] Información adicional:");
+        $writeLog("Longitud del código: " . strlen($user_code));
+        $writeLog("Longitud del hash: " . strlen($stored_code));
+        $writeLog("Primeros 10 caracteres del hash: " . substr($stored_code, 0, 10));
+        $writeLog("¿Es un hash bcrypt? " . (password_get_info($stored_code)['algoName'] ?? 'No'));
+        
+        return false;
+        
+    } catch (Exception $e) {
+        $error_msg = "❌ Error en verify_2fa_code: " . $e->getMessage();
+        $writeLog($error_msg);
+        return false;
+        
+    } finally {
+        // Registrar el final de la verificación
+        $writeLog("=== FIN verify_2fa_code ===\n");
+    }
+}
+
+/**
+ * Registra un intento de inicio de sesión con información detallada
+ * 
+ * @param PDO $con Conexión a la base de datos
+ * @param string $username Nombre de usuario que intentó iniciar sesión
+ * @param bool $success Indica si el intento fue exitoso
+ * @param string $ip Dirección IP del cliente
+ * @return bool True si se registró correctamente, false en caso de error
+ */
+function log_login_attempt($con, $username, $success, $ip) {
+    try {
+        // Validar y limpiar la entrada
+        $username = is_string($username) ? htmlspecialchars($username, ENT_QUOTES, 'UTF-8') : '';
+        $ip = filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '0.0.0.0';
+        $success = (bool)$success;
+        
+        // Recolectar información del navegador
+        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido';
+        $referer = $_SERVER['HTTP_REFERER'] ?? 'Directo';
+        $http_accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+        $http_accept_language = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '';
+        $http_accept_encoding = $_SERVER['HTTP_ACCEPT_ENCODING'] ?? '';
+        $http_connection = $_SERVER['HTTP_CONNECTION'] ?? '';
+        $http_upgrade_insecure_requests = $_SERVER['HTTP_UPGRADE_INSECURE_REQUESTS'] ?? 0;
+        
+        // Obtener información geográfica básica (solo para registro)
+        $country = '';
+        $city = '';
+        
+        // Usar una transacción para asegurar la integridad de los datos
+        $con->beginTransaction();
+        
+        // Insertar el intento de inicio de sesión
+        $stmt = $con->prepare("
+            INSERT INTO login_attempts (
+                username, 
+                ip_address, 
+                user_agent, 
+                success, 
+                referer, 
+                country, 
+                city,
+                http_accept,
+                http_accept_language,
+                http_accept_encoding,
+                http_connection,
+                http_upgrade_insecure_requests,
+                request_time
+            ) VALUES (
+                :username, 
+                :ip_address, 
+                :user_agent, 
+                :success, 
+                :referer, 
+                :country, 
+                :city,
+                :http_accept,
+                :http_accept_language,
+                :http_accept_encoding,
+                :http_connection,
+                :http_upgrade_insecure_requests,
+                NOW()
+            )
+        ");
+        
+        $stmt->execute([
+            ':username' => substr($username, 0, 50),
+            ':ip_address' => $ip,
+            ':user_agent' => substr($user_agent, 0, 255),
+            ':success' => $success ? 1 : 0,
+            ':referer' => substr($referer, 0, 255),
+            ':country' => substr($country, 0, 100),
+            ':city' => substr($city, 0, 100),
+            ':http_accept' => substr($http_accept, 0, 255),
+            ':http_accept_language' => substr($http_accept_language, 0, 100),
+            ':http_accept_encoding' => substr($http_accept_encoding, 0, 100),
+            ':http_connection' => substr($http_connection, 0, 50),
+            ':http_upgrade_insecure_requests' => (int)$http_upgrade_insecure_requests
+        ]);
+        
+        // Si el intento fue fallido, verificar si debemos bloquear la IP
+        if (!$success) {
+            // Contar intentos fallidos recientes desde esta IP
+            $stmt = $con->prepare("
+                SELECT COUNT(*) as attempts 
+                FROM login_attempts 
+                WHERE ip_address = :ip 
+                AND success = 0 
+                AND request_time > DATE_SUB(NOW(), INTERVAL 1 HOUR)
+            ");
+            $stmt->execute([':ip' => $ip]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Bloquear IP después de 10 intentos fallidos en una hora
+            if ($result && $result['attempts'] >= 10) {
+                $block_until = date('Y-m-d H:i:s', strtotime('+1 hour'));
+                $stmt = $con->prepare("
+                    INSERT INTO blocked_ips (ip_address, block_until, reason) 
+                    VALUES (:ip, :block_until, 'Demasiados intentos fallidos')
+                    ON DUPLICATE KEY UPDATE block_until = VALUES(block_until), reason = VALUES(reason)
+                ");
+                $stmt->execute([
+                    ':ip' => $ip,
+                    ':block_until' => $block_until
+                ]);
+            }
+        }
+        
+        $con->commit();
+        return true;
+        
+    } catch (PDOException $e) {
+        if (isset($con) && $con->inTransaction()) {
+            $con->rollBack();
+        }
+        error_log("Error en log_login_attempt (IP: " . ($_SERVER['REMOTE_ADDR'] ?? '') . "): " . $e->getMessage());
+        return false;
+    }
+}
+
+// Función para verificar si la IP está bloqueada
+function is_ip_blocked($con, $ip) {
+    try {
+        $one_day_ago = date('Y-m-d H:i:s', strtotime('-1 day'));
+        
+        // Contar intentos fallidos en las últimas 24 horas
+        $sql = "SELECT COUNT(*) as attempts 
+                FROM login_attempts 
+                WHERE ip = :ip 
+                AND success = 0 
+                AND timestamp > :one_day_ago";
+        
+        $stmt = $con->prepare($sql);
+        $stmt->execute([
+            ':ip' => $ip,
+            ':one_day_ago' => $one_day_ago
+        ]);
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return ($row['attempts'] >= 8); // Bloquear después de 8 intentos fallidos
+        
+    } catch (PDOException $e) {
+        error_log("Error en is_ip_blocked: " . $e->getMessage());
+        return false; // Por defecto, no bloquear si hay un error
+    }
+}
+
+// Función para autenticar usuario
+function authenticate_user($con, $username, $password) {
+    // Validar entrada
+    if (empty($username) || empty($password)) {
+        return ['status' => 'error', 'message' => 'Usuario y contraseña son requeridos.'];
+    }
+    
+    // Limitar longitud de usuario para prevenir ataques de desbordamiento
+    if (strlen($username) > 50) {
+        return ['status' => 'error', 'message' => 'Credenciales inválidas.'];
+    }
+    
+    // Obtener IP del cliente
+    $ip = $_SERVER['REMOTE_ADDR'];
+    
+    // Iniciar transacción
+    $in_transaction = $con->inTransaction();
+    if (!$in_transaction) {
+        $con->beginTransaction();
+    }
+    
+    try {
+        // Buscar usuario en la base de datos
+        $stmt = $con->prepare("SELECT id, usuario, password, activo, intentos, bloqueado_until, last_login_attempt FROM usuarios WHERE usuario = :username LIMIT 1 FOR UPDATE");
+        $stmt->execute([':username' => $username]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user) {
+            // Verificar si la cuenta está bloqueada temporalmente
+            if ($user['bloqueado_until'] && strtotime($user['bloqueado_until']) > time()) {
+                $remaining_time = ceil((strtotime($user['bloqueado_until']) - time()) / 60);
+                $con->rollBack();
+                return ['status' => 'error', 'message' => 'Cuenta bloqueada temporalmente. Intente nuevamente en ' . $remaining_time . ' minutos.'];
+            }
+            
+            // Aplicar retraso exponencial para prevenir fuerza bruta
+            if ($user['last_login_attempt']) {
+                $last_attempt = strtotime($user['last_login_attempt']);
+                $delay = min(pow(2, $user['intentos']), 15); // Máximo 15 segundos de retraso
+                
+                if (time() - $last_attempt < $delay) {
+                    sleep($delay);
+                }
+            }
+            
+            // Verificar contraseña con protección contra timing attacks
+            $auth_success = false;
+            if ($user['password'] && password_verify($password, $user['password'])) {
+                $auth_success = true;
+                
+                // Verificar si la contraseña necesita ser actualizada (algoritmo obsoleto o opciones cambiadas)
+                if (password_needs_rehash($user['password'], PASSWORD_DEFAULT, ['cost' => 12])) {
+                    $newHash = password_hash($password, PASSWORD_DEFAULT, ['cost' => 12]);
+                    $stmt = $con->prepare("UPDATE usuarios SET password = :password WHERE id = :id");
+                    $stmt->execute([':password' => $newHash, ':id' => $user['id']]);
+                }
+            }
+            
+            if ($auth_success) {
+                // Restablecer contador de intentos fallidos
+                $stmt = $con->prepare("UPDATE usuarios SET intentos = 0, bloqueado_until = NULL, last_login_attempt = NOW() WHERE id = :id");
+                $stmt->execute([':id' => $user['id']]);
+                
+                // Generar código 2FA seguro
+                $two_factor_code = generate_2fa_code();
+                $expiry_time = date('Y-m-d H:i:s', strtotime('+5 minutes'));
+                
+                // Generar hash seguro del código 2FA
+                $hashed_code = password_hash($two_factor_code, PASSWORD_DEFAULT);
+                
+                // Guardar el código 2FA de manera directa
+                try {
+                    // Primero, asegurarnos de que las columnas existan
+                    $con->exec("ALTER TABLE usuarios 
+                        MODIFY COLUMN codigo_2fa TEXT NULL,
+                        MODIFY COLUMN codigo_2fa_expiracion DATETIME NULL");
+                    
+                    // Limpiar cualquier código existente
+                    $con->exec("UPDATE usuarios SET 
+                        codigo_2fa = NULL, 
+                        codigo_2fa_expiracion = NULL 
+                        WHERE id = " . $user['id']);
+                    
+                    // Preparar la consulta SQL con marcadores de posición
+                    $sql = "UPDATE usuarios SET 
+                            codigo_2fa = :codigo, 
+                            codigo_2fa_expiracion = :expiracion,
+                            last_login_attempt = NOW(),
+                            ultimo_acceso = NOW()
+                            WHERE id = :id";
+                    
+                    // Preparar y ejecutar la consulta
+                    $stmt = $con->prepare($sql);
+                    $result = $stmt->execute([
+                        ':codigo' => $hashed_code,
+                        ':expiracion' => $expiry_time,
+                        ':id' => $user['id']
+                    ]);
+                    
+                    // Verificar si hubo error
+                    if ($result === false) {
+                        $error = $stmt->errorInfo();
+                        throw new Exception("Error al guardar el código 2FA: " . ($error[2] ?? 'Error desconocido'));
+                    }
+                    
+                    // Verificar que los datos se guardaron correctamente
+                    $checkStmt = $con->prepare("SELECT codigo_2fa, codigo_2fa_expiracion 
+                                             FROM usuarios 
+                                             WHERE id = :id");
+                    $checkStmt->execute([':id' => $user['id']]);
+                    $savedData = $checkStmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if (empty($savedData['codigo_2fa'])) {
+                        throw new Exception("El código 2FA no se guardó correctamente en la base de datos");
+                    }
+                    
+                    // Registrar éxito
+                    error_log("Código 2FA guardado correctamente para el usuario ID: " . $user['id']);
+                    
+                } catch (Exception $e) {
+                    error_log("Error crítico al guardar código 2FA: " . $e->getMessage());
+                    // Continuar de todos modos para no romper el flujo
+                }
+                
+                // También guardar en sesión para compatibilidad
+                $_SESSION['2fa_user_id'] = $user['id'];
+                $_SESSION['2fa_code'] = $hashed_code;
+                $_SESSION['2fa_expiry'] = $expiry_time;
+                $_SESSION['login_attempts'] = 0;
+                
+                // Registrar inicio de sesión exitoso
+                log_login_attempt($con, $username, true, $ip);
+                
+                // Actualizar el último acceso
+                $stmt = $con->prepare("UPDATE usuarios SET ultimo_acceso = NOW() WHERE id = :id");
+                $stmt->execute([':id' => $user['id']]);
+                
+                // Confirmar transacción si la iniciamos nosotros
+                if (!$in_transaction && $con->inTransaction()) {
+                    $con->commit();
+                }
+                
+                // Retornar éxito con código 2FA
+                return [
+                    'status' => '2fa_required',
+                    'user_id' => $user['id'],
+                    'test_code' => $two_factor_code, // Solo para pruebas
+                    'message' => 'Se requiere autenticación de dos factores'
+                ];
+            } else {
+                // Incrementar contador de intentos fallidos
+                $new_attempts = $user['intentos'] + 1;
+                $bloqueado_until = null;
+                $message = 'Credenciales inválidas.';
+                
+                // Bloquear cuenta después de 3 intentos fallidos por tiempo progresivo
+                if ($new_attempts >= 3) {
+                    $block_minutes = min(15 * ($new_attempts - 2), 1440); // Máximo 24 horas
+                    $bloqueado_until = date('Y-m-d H:i:s', strtotime("+{$block_minutes} minutes"));
+                    $message = 'Demasiados intentos fallidos. Cuenta bloqueada temporalmente.';
+                }
+                
+                $stmt = $con->prepare("UPDATE usuarios SET intentos = :intentos, bloqueado_until = :bloqueado_until, last_login_attempt = NOW() WHERE id = :id");
+                $stmt->execute([
+                    ':intentos' => $new_attempts,
+                    ':bloqueado_until' => $bloqueado_until,
+                    ':id' => $user['id']
+                ]);
+                
+                // Registrar intento fallido
+                log_login_attempt($con, $username, false, $ip);
+                $con->commit();
+                
+                return ['status' => 'error', 'message' => $message];
+            }
+        } else {
+            // Usuario no existe, pero simular verificación para prevenir enumeración de usuarios
+            // Usar password_hash con un hash falso para mantener el tiempo de respuesta similar
+            password_verify($password, '$2y$12$' . str_repeat('0', 53));
+            
+            // Registrar intento fallido (usuario no existe)
+            log_login_attempt($con, $username, false, $ip);
+            
+            if (!$in_transaction && $con->inTransaction()) {
+                $con->commit();
+            }
+            
+            return ['status' => 'error', 'message' => 'Credenciales inválidas.'];
+        }
+        
+    } catch (PDOException $e) {
+        if (!$in_transaction && $con->inTransaction()) {
+            $con->rollBack();
+        }
+        error_log("Error en authenticate_user: " . $e->getMessage());
+        error_log("Stack trace: " . $e->getTraceAsString());
+        return [
+            'status' => 'error', 
+            'message' => 'Error en la autenticación: ' . $e->getMessage()
+        ];
+    }
+}
+
+// Función para verificar el código de doble factor
+function verify_two_factor($user_id, $code) {
+    // Iniciar registro de depuración
+    error_log("=== INICIO verify_two_factor ===");
+    error_log("Usuario ID: $user_id, Código: $code");
+    
+    // Validar parámetros
+    if (empty($user_id) || empty($code)) {
+        $error_msg = "Error en verify_two_factor: Datos incompletos (user_id: $user_id, code: $code)";
+        error_log($error_msg);
+        error_log("=== FIN verify_two_factor (datos incompletos) ===");
+        return ['status' => 'error', 'message' => 'Datos incompletos'];
+    }
+    
+    // Validar formato del código (6 dígitos)
+    if (!preg_match('/^\d{6}$/', $code)) {
+        error_log("Error en verify_two_factor: Formato de código inválido (code: $code)");
+        return ['status' => 'error', 'message' => 'Formato de código inválido'];
+    }
+    
+    // Verificar si hay una sesión activa
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+    
+    // Inicializar contador de intentos si no existe
+    if (!isset($_SESSION['login_attempts'])) {
+        $_SESSION['login_attempts'] = 0;
+    }
+    
+    // Verificar si la sesión está bloqueada temporalmente
+    if (isset($_SESSION['login_blocked_until']) && $_SESSION['login_blocked_until'] > time()) {
+        $remaining_time = ceil(($_SESSION['login_blocked_until'] - time()) / 60);
+        $message = "Demasiados intentos fallidos. Por favor, intente nuevamente en $remaining_time minutos.";
+        error_log("Intento de verificación 2FA bloqueado temporalmente para el usuario $user_id: $message");
+        return ['status' => 'error', 'message' => $message];
+    }
+    
+    // Bloquear después de 5 intentos fallidos
+    if ($_SESSION['login_attempts'] >= 5) {
+        $block_time = 15 * 60; // 15 minutos
+        $_SESSION['login_blocked_until'] = time() + $block_time;
+        
+        // Registrar el bloqueo en el log
+        error_log("Usuario $user_id bloqueado temporalmente por exceso de intentos fallidos");
+        
+        // Actualizar la base de datos con el bloqueo
+        try {
+            $con = conectarDB();
+            $stmt = $con->prepare("UPDATE usuarios SET bloqueado_until = :blocked_until WHERE id = :id");
+            $blocked_until = date('Y-m-d H:i:s', time() + $block_time);
+            $stmt->execute([
+                ':blocked_until' => $blocked_until,
+                ':id' => $user_id
+            ]);
+        } catch (PDOException $e) {
+            error_log("Error al actualizar el bloqueo en la base de datos: " . $e->getMessage());
+        }
+        
+        return ['status' => 'error', 'message' => 'Demasiados intentos fallidos. Por favor, espere 15 minutos.'];
+    }
+    
+    try {
+        error_log("Conectando a la base de datos...");
+        // Obtener la conexión a la base de datos
+        $con = conectarDB();
+        if (!$con) {
+            $error_msg = "No se pudo conectar a la base de datos";
+            error_log($error_msg);
+            throw new Exception($error_msg);
+        }
+        error_log("Conexión a la base de datos exitosa");
+        
+        // Iniciar transacción solo si no hay una activa
+        if (!$con->inTransaction()) {
+            error_log("Iniciando nueva transacción...");
+            $con->beginTransaction();
+            $transactionStarted = true;
+        } else {
+            error_log("Usando transacción existente");
+            $transactionStarted = false;
+        }
+        
+        // Bloquear la fila del usuario para evitar condiciones de carrera
+        $query = "SELECT id, usuario, codigo_2fa, codigo_2fa_expiracion 
+                 FROM usuarios 
+                 WHERE id = :id 
+                 LIMIT 1 FOR UPDATE";
+        error_log("Ejecutando consulta: " . str_replace(["\n", "\t", "  "], [" ", " ", " "], $query));
+        
+        $stmt = $con->prepare($query);
+        $stmt->execute([':id' => $user_id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        error_log("Datos del usuario obtenidos: " . print_r($user, true));
+        
+        if (!$user) {
+            $con->rollBack();
+            error_log("Error en verify_two_factor: Usuario no encontrado (ID: $user_id)");
+            return ['status' => 'error', 'message' => 'Usuario no encontrado'];
+        }
+        
+        // Depuración: Mostrar datos del usuario
+        error_log("Datos del usuario en verify_two_factor: " . print_r($user, true));
+        
+        if (empty($user['codigo_2fa']) || empty($user['codigo_2fa_expiracion'])) {
+            $con->rollBack();
+            error_log("Error en verify_two_factor: No hay código 2FA pendiente para el usuario ID: $user_id");
+            return ['status' => 'error', 'message' => 'No hay un código 2FA pendiente. Por favor, inicie sesión nuevamente.'];
+        }
+        
+        // Verificar si el código ha expirado
+        $expiry_time = strtotime($user['codigo_2fa_expiracion']);
+        $current_time = time();
+        
+        error_log("Tiempo actual: " . date('Y-m-d H:i:s', $current_time));
+        error_log("Tiempo de expiración: " . date('Y-m-d H:i:s', $expiry_time));
+        
+        if ($expiry_time < $current_time) {
+            // Limpiar el código expirado
+            $updateStmt = $con->prepare("UPDATE usuarios SET codigo_2fa = NULL, codigo_2fa_expiracion = NULL WHERE id = :user_id");
+            $updateStmt->execute([':user_id' => $user_id]);
+            
+            // Commit the transaction if active
+            if (isset($transactionStarted) && $transactionStarted) {
+                error_log("Confirmando transacción después de intento fallido...");
+                $con->commit();
+                error_log("Transacción confirmada después de intento fallido");
+            }
+            error_log("Transacción confirmada después de limpiar código expirado");
+            
+            error_log("Error en verify_two_factor: Código 2FA expirado para el usuario ID: $user_id");
+            return ['status' => 'error', 'message' => 'El código ha expirado. Por favor, inicie sesión nuevamente.'];
+        }
+        
+        // Verificar el código
+        error_log("\n=== VERIFICACIÓN DE CÓDIGO 2FA ===");
+        error_log("Usuario ID: $user_id");
+        error_log("Código proporcionado: $code");
+        error_log("Hash almacenado: " . substr($user['codigo_2fa'], 0, 10) . "...");
+        error_log("Expiraci�n: " . $user['codigo_2fa_expiracion']);
+        error_log("Tiempo actual: " . date('Y-m-d H:i:s'));
+        error_log("Tiempo de expiraci�n: " . $user['codigo_2fa_expiracion']);
+        error_log("Estado de la transacci�n: " . ($con->inTransaction() ? 'Activa' : 'Inactiva'));
+        
+        // Depuración: Mostrar información detallada
+        error_log("\n=== INFORMACIÓN DETALLADA DE VERIFICACIÓN ===");
+        error_log("Código proporcionado: " . var_export($code, true));
+        error_log("Tipo de código: " . gettype($code));
+        error_log("Hash almacenado: " . $user['codigo_2fa']);
+        error_log("Tipo de hash: " . gettype($user['codigo_2fa']));
+        error_log("Longitud del hash: " . strlen($user['codigo_2fa']));
+        error_log("Información del hash: " . print_r(password_get_info($user['codigo_2fa']), true));
+        error_log("Fecha de expiración: " . $user['codigo_2fa_expiracion']);
+        
+        // Intentar verificar con password_verify primero (método recomendado)
+        $code_verified = false;
+        $verification_method = 'none';
+        
+        // Método 1: password_verify estándar
+        if (password_verify($code, $user['codigo_2fa'])) {
+            $code_verified = true;
+            $verification_method = 'password_verify';
+        } 
+        // Método 2: Verificar si el hash comienza con $2y$ y luego usar password_verify
+        elseif (strpos($user['codigo_2fa'], '$2y$') === 0 && password_verify($code, $user['codigo_2fa'])) {
+            $code_verified = true;
+            $verification_method = 'password_verify (bcrypt explicit)';
+        } 
+        // Método 3: Comparación directa (solo para depuración)
+        elseif ($code === $user['codigo_2fa']) {
+            $code_verified = true;
+            $verification_method = 'direct_comparison';
+            error_log("\u26a0\ufe0f ADVERTENCIA: Se utilizó comparación directa (no seguro para producción)");
+        }
+        
+        // Registrar el método de verificación utilizado
+        error_log("Método de verificación: $verification_method");
+        error_log("Resultado de la verificación: " . ($code_verified ? 'VÁLIDO' : 'INVÁLIDO'));
+        error_log("Estado de la transacción antes de verificación: " . ($con->inTransaction() ? 'Activa' : 'Inactiva'));
+        
+        // Verificación adicional: asegurarse de que el código no esté en el hash
+        if (strpos($user['codigo_2fa'], $code) !== false) {
+            error_log("\u26a0\ufe0f ADVERTENCIA: El código parece estar incluido en el hash (posible error de configuración)");
+        }
+        
+        // Finalmente, verificar el código
+        if ($code_verified === true) {
+            error_log("\n=== CÓDIGO 2FA VERIFICADO CON ÉXITO ===");
+            error_log("Código 2FA verificado correctamente para el usuario ID: $user_id");
+            
+            // Código válido, limpiar y autenticar
+            try {
+                // Primero, obtener el nombre de usuario para el log
+                $stmt = $con->prepare("SELECT usuario FROM usuarios WHERE id = :id");
+                $stmt->execute([':id' => $user_id]);
+                $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+                $username = $user_data ? $user_data['usuario'] : 'desconocido';
+                
+                error_log("Usuario encontrado: $username");
+                
+                // Limpiar el código 2FA usado
+                $updateStmt = $con->prepare("UPDATE usuarios SET 
+                    codigo_2fa = NULL, 
+                    codigo_2fa_expiracion = NULL, 
+                    ultimo_acceso = NOW(),
+                    intentos = 0,
+                    bloqueado_until = NULL
+                    WHERE id = :id");
+                
+            error_log("Ejecutando consulta de actualización...");
+                
+            $updateStmt->execute([':id' => $user_id]);
+                
+            // Registrar inicio de sesión exitoso
+            if (isset($_SERVER['REMOTE_ADDR'])) {
+                log_login_attempt($con, $username, true, $_SERVER['REMOTE_ADDR']);
+            }
+                
+            // Confirmar la transacción solo si la iniciamos
+            if (isset($transactionStarted) && $transactionStarted) {
+                error_log("Confirmando transacción...");
+                $con->commit();
+                error_log("Transacción confirmada");
+            } else {
+                error_log("No se confirma la transacción (no la iniciamos)");
+            }
+                
+            // Limpiar variables de sesión relacionadas con 2FA
+            unset($_SESSION['2fa_user_id']);
+            unset($_SESSION['2fa_code']);
+            unset($_SESSION['2fa_expiry']);
+                
+            // Establecer sesión de usuario
+            if (session_status() !== PHP_SESSION_ACTIVE) {
+                session_start();
+            }
+            
+            // Obtener el nombre de usuario
+            $stmt = $con->prepare("SELECT usuario FROM usuarios WHERE id = :id");
+            $stmt->execute([':id' => $user_id]);
+            $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Configurar variables de sesión
+            $_SESSION['user_id'] = $user_id;
+            $_SESSION['authenticated'] = true;
+            $_SESSION['login_time'] = time();
+            
+            if ($user_data && isset($user_data['usuario'])) {
+                $_SESSION['usuario'] = $user_data['usuario'];
+            }
+            
+            // Regenerar ID de sesión para prevenir fijación
+            session_regenerate_id(true);
+            
+            // Verificar que la sesión se haya configurado correctamente
+            $session_ok = (
+                isset($_SESSION['authenticated']) && 
+                $_SESSION['authenticated'] === true && 
+                isset($_SESSION['user_id']) && 
+                $_SESSION['user_id'] == $user_id
+            );
+            
+            error_log("Verificación de sesión: " . ($session_ok ? 'ÉXITO' : 'FALLO'));
+            error_log("Datos de sesión: " . print_r($_SESSION, true));
+            error_log("Autenticación 2FA exitosa para el usuario ID: $user_id");
+            
+            return [
+                'status' => 'success', 
+                'message' => 'Autenticación exitosa', 
+                'redirect' => 'index.php',
+                'session_ok' => $session_ok
+            ];
+                
+        } catch (Exception $e) {
+            // Revertir la transacción solo si la iniciamos
+            if (isset($transactionStarted) && $transactionStarted) {
+                error_log("Revirtiendo transacción debido a error...");
+                $con->rollBack();
+                error_log("Transacción revertida");
+            }
+            error_log("Error al actualizar datos de usuario después de verificación 2FA: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            return [
+                'status' => 'error',
+                'message' => 'Error al completar la autenticación. Por favor, intente nuevamente.'
+            ];
+        }
+    } else {
+        try {
+            // Iniciar una nueva transacción para el intento fallido
+            $localTransaction = false;
+            if (!$con->inTransaction()) {
+                $con->beginTransaction();
+                $localTransaction = true;
+            }
+            
+            // Incrementar contador de intentos fallidos
+            $_SESSION['login_attempts']++;
+            $remaining_attempts = 5 - $_SESSION['login_attempts'];
+                
+            // Bloquear después de 5 intentos fallidos
+            if ($_SESSION['login_attempts'] >= 5) {
+                $_SESSION['login_blocked_until'] = time() + (15 * 60);
+                $message = 'Demasiados intentos fallidos. Por favor, espere 15 minutos.';
+                
+                // Actualizar estado de bloqueo en la base de datos
+                $stmt = $con->prepare("UPDATE usuarios SET bloqueado_until = DATE_ADD(NOW(), INTERVAL 15 MINUTE) WHERE id = :user_id");
+                $stmt->execute([':user_id' => $user_id]);
+            } else {
+                $message = 'Código de verificación incorrecto. ';
+                $message .= $remaining_attempts > 0 ? "Le quedan $remaining_attempts intentos." : 'Último intento.';
+            }
+            
+            // Registrar intento fallido
+            if (isset($user['usuario']) && isset($_SERVER['REMOTE_ADDR'])) {
+                log_login_attempt($con, $user['usuario'], false, $_SERVER['REMOTE_ADDR']);
+            }
+            
+            // Solo hacer commit si iniciamos la transacción localmente
+            if ($localTransaction) {
+                $con->commit();
+            }
+            
+        } catch (Exception $e) {
+            // Revertir solo si iniciamos la transacción localmente
+            if (isset($localTransaction) && $localTransaction && $con->inTransaction()) {
+                $con->rollBack();
+            }
+            error_log("Error al procesar intento fallido: " . $e->getMessage());
+        }
+        return ['status' => 'error', 'message' => $message];
+    }
+        
+    } catch (PDOException $e) {
+        // Obtener información detallada del error
+        $error_info = $e->errorInfo;
+        $error_message = $e->getMessage();
+        $error_code = $e->getCode();
+        
+        // Revertir la transacción si está activa
+        if (isset($con) && $con->inTransaction()) {
+            try {
+                $con->rollBack();
+                error_log("Transacción revertida debido a un error");
+            } catch (PDOException $rollbackEx) {
+                error_log("Error al revertir la transacción: " . $rollbackEx->getMessage());
+            }
+        }
+        
+        // Registrar información detallada del error
+        error_log("\n=== ERROR EN VERIFY_TWO_FACTOR ===");
+        error_log("Mensaje: " . $error_message);
+        error_log("Código de error: " . $error_code);
+        error_log("Info del error PDO: " . print_r($error_info, true));
+        error_log("Archivo: " . $e->getFile() . ":" . $e->getLine());
+        error_log("Stack trace: " . $e->getTraceAsString());
+        
+        // Verificar si es un error de conexión
+        if (strpos($error_message, 'SQLSTATE[HY000] [2002]') !== false) {
+            $user_message = 'Error de conexión con la base de datos. Por favor, intente nuevamente.';
+        } 
+        // Verificar si es un error de clave duplicada
+        elseif ($error_code == 23000 || (isset($error_info[0]) && $error_info[0] == '23000')) {
+            $user_message = 'Error de integridad de datos. Por favor, intente nuevamente.';
+        } 
+        // Otros errores
+        else {
+            $user_message = 'Error al verificar el código. Por favor, intente nuevamente.';
+        }
+        
+        // Registrar el mensaje de error que se le mostrará al usuario
+        error_log("Mensaje para el usuario: " . $user_message);
+        
+        return [
+            'status' => 'error', 
+            'message' => $user_message,
+            'debug' => (ENVIRONMENT === 'development') ? [
+                'error' => $error_message,
+                'code' => $error_code,
+                'file' => $e->getFile() . ':' . $e->getLine()
+            ] : null
+        ];
+    }
+}
