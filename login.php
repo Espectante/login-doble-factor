@@ -261,7 +261,7 @@ if (empty($_SESSION['csrf_token'])) {
                         </div>
                         <div class="pull-left">
                             <h6>
-                                <a href="#pablo" class="link">Contacto Admnistrador</a>
+                                <a href="#pablo" class="link">Contacto Admnistrador2222</a>
                             </h6>
                         </div>
                         <div class="pull-right">
@@ -279,7 +279,7 @@ if (empty($_SESSION['csrf_token'])) {
                     <ul>
                         <li>
                             <a href="https://www.codexperu.com/soporte">
-                                Soporte Codex Peru
+                                Soporte Codex Peru222
                             </a>
                         </li>
                         
